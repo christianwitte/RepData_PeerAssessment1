@@ -2,7 +2,8 @@
 
 
 ## Loading and preprocessing the data
-```{r Load and Preprocess Data}
+
+```r
 activity <- read.csv("activity.csv")
 stepsByDay <- aggregate(list(Steps=activity$steps), by=list(Date=activity$date), FUN=sum)
 avgStepsByInterval <- aggregate(list(AvgSteps=activity$steps), by=list(Interval=activity$interval), FUN=mean, na.rm=TRUE)
@@ -10,37 +11,64 @@ avgStepsByInterval <- aggregate(list(AvgSteps=activity$steps), by=list(Interval=
 
 
 ## What is mean total number of steps taken per day?
-```{r Histogram of Steps}
+
+```r
 hist(stepsByDay$Steps, main="Histogram of Total Steps Each Day", xlab="Steps", col="lightblue")
 ```
 
+![plot of chunk Histogram of Steps](figure/Histogram of Steps.png) 
+
 Mean:
-```{r Mean Steps per Day}
+
+```r
 mean(stepsByDay$Steps, na.rm=TRUE)
 ```
+
+```
+## [1] 10766
+```
 Median:
-```{r Median Steps per Day}
+
+```r
 median(stepsByDay$Steps, na.rm=TRUE)
 ```
+
+```
+## [1] 10765
+```
 ## What is the average daily activity pattern?
-```{r Average Daily Activity Pattern}
+
+```r
 plot(avgStepsByInterval$Interval, avgStepsByInterval$AvgSteps, type="l", main="Daily Activity Pattern", sub="Average number of steps by Interval", ylab="Average Steps", xlab="Interval")
 ```
 
+![plot of chunk Average Daily Activity Pattern](figure/Average Daily Activity Pattern.png) 
+
 Interval with highest (average) number of steps:
-```{r Interval with max number of steps}
+
+```r
 avgStepsByInterval[avgStepsByInterval$AvgSteps == max(avgStepsByInterval$AvgSteps, na.rm=TRUE),]$Interval
+```
+
+```
+## [1] 835
 ```
 
 
 ## Imputing missing values
 Total number of missing values:
-```{r Missing Values}
+
+```r
 sum(is.na(activity$steps))
 ```
 
+```
+## [1] 2304
+```
+
 Strategy for imputing missing values: fill with average value for the given interval.
-```{r Impute missing values}
+
+```r
 ## define function to lookup Average Steps given an interval
 getAvgSteps <- function(interval) { 
       avgStepsByInterval[avgStepsByInterval$Interval == interval,]$AvgSteps 
@@ -54,23 +82,37 @@ imputedStepsByDay <- aggregate(list(Steps=imputed$steps), by=list(Date=imputed$d
 ```
 
 Averages for Imputed Data Set:
-```{r Histogram of Imputed Steps}
+
+```r
 hist(imputedStepsByDay$Steps, main="Histogram of Total Steps Each Day (including imputed values)", xlab="Steps", col="lightblue")
 ```
 
+![plot of chunk Histogram of Imputed Steps](figure/Histogram of Imputed Steps.png) 
+
 Mean (including imputed values):
-```{r Mean Imputed Steps per Day}
+
+```r
 mean(imputedStepsByDay$Steps)
 ```
+
+```
+## [1] 10766
+```
 Median (including imputed values):
-```{r Median Imputed Steps per Day}
+
+```r
 median(imputedStepsByDay$Steps)
+```
+
+```
+## [1] 10766
 ```
 
 The above data shows an (expected) increased "peak" in the histogram -- i.e., more data exist. However, the mean remains unchanged, and the median value is increased by only one step per day.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r add Week-end/-day factor to data}
+
+```r
 ## Add Weekend/Weekday factor to activity data
 activity$wend <- as.factor(ifelse(weekdays( as.Date(activity$date)) %in% c("Saturday","Sunday"), "Weekend", "Weekday")) 
 ## recalculate averages by interval
@@ -79,3 +121,5 @@ avgStepsByIntervalWend <- aggregate(list(AvgSteps=activity$steps), by=list(Inter
 library(lattice)
 xyplot(AvgSteps ~ Interval | Wend, avgStepsByIntervalWend, type="l", layout=c(1,2))
 ```
+
+![plot of chunk add Week-end/-day factor to data](figure/add Week-end/-day factor to data.png) 
